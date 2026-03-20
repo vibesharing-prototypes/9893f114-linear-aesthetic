@@ -1,0 +1,138 @@
+---
+description: Rules for implementing Figma designs using the Diligent design system. Covers component organization, styling conventions, design tokens, asset handling, and the required Figma-to-code workflow.
+globs: ["src/**/*.tsx", "src/**/*.ts", "src/**/*.css"]
+alwaysApply: false
+---
+
+# Diligent Design System Rules
+
+## Source of Truth
+
+- Figma file: **Diligent Shadcn** (`wJ4C33K2hKe0vGvKb8vVUL`)
+- Stack: Vite + React + TypeScript + Tailwind CSS v4 + ShadCN/UI
+- Font: **Geist Variable** (loaded via `@fontsource-variable/geist`)
+
+## Component Organization
+
+- IMPORTANT: Always use components from `src/components/ui/` when possible
+- Place new UI components in `src/components/ui/`
+- Place feature/page components in `src/components/`
+- Follow PascalCase for component names
+- Components must accept a `className` prop for composition
+- Use path alias `@/` for all imports (e.g. `@/components/ui/button`)
+
+## Design Tokens — Colors
+
+All colors are defined as CSS custom properties in `src/index.css`.
+IMPORTANT: Never hardcode hex colors — always use the semantic token via Tailwind utility classes.
+
+| Token                  | Light Value  | Tailwind Class              |
+|------------------------|--------------|-----------------------------|
+| `--background`         | `#ffffff`    | `bg-background`             |
+| `--foreground`         | `#0f1113`    | `text-foreground`           |
+| `--primary`            | `#1a1c1e`    | `bg-primary`, `text-primary`|
+| `--primary-foreground` | `#ffffff`    | `text-primary-foreground`   |
+| `--secondary`          | `#f9f9fc`    | `bg-secondary`              |
+| `--secondary-foreground`| `#1a1c1e`  | `text-secondary-foreground` |
+| `--muted`              | `#f0f0f3`    | `bg-muted`                  |
+| `--muted-foreground`   | `#76777a`    | `text-muted-foreground`     |
+| `--accent`             | `#f0f0f3`    | `bg-accent`                 |
+| `--accent-foreground`  | `#0f1113`    | `text-accent-foreground`    |
+| `--destructive`        | `#dc2626`    | `bg-destructive`            |
+| `--border`             | `#e2e2e5`    | `border-border`             |
+| `--input`              | `#e2e2e5`    | `border-input`              |
+| `--ring`               | `#1a1c1e`    | `ring-ring`                 |
+
+## Design Tokens — Typography
+
+The Diligent design system uses **Geist** as the sole typeface.
+
+| Style               | Size | Weight   | Line-Height | Letter-Spacing | Tailwind Classes                                |
+|----------------------|------|----------|-------------|----------------|-------------------------------------------------|
+| Heading 1            | 48px | 600      | 48px        | -1.5px         | `text-5xl font-semibold tracking-tight`         |
+| Heading 3            | 24px | 600      | 28.8px      | -1px           | `text-2xl font-semibold tracking-tight`         |
+| Paragraph Regular    | 16px | 400      | 24px        | 0              | `text-base`                                     |
+| Paragraph Small      | 14px | 400      | 20px        | 0              | `text-sm`                                       |
+| Paragraph Small Med  | 14px | 500      | 20px        | 0              | `text-sm font-medium`                           |
+| Paragraph Small Bold | 14px | 600      | 20px        | 0              | `text-sm font-semibold`                         |
+| Paragraph Mini       | 12px | 400      | 16px        | 0              | `text-xs`                                       |
+| Paragraph Mini Med   | 12px | 500      | 16px        | 0              | `text-xs font-medium`                           |
+| Paragraph Mini Bold  | 12px | 600      | 16px        | 0              | `text-xs font-semibold`                         |
+
+## Design Tokens — Spacing
+
+The Figma spacing scale maps to Tailwind's built-in **numeric** spacing utilities.
+IMPORTANT: Do NOT register custom `--spacing-xs`, `--spacing-sm`, etc. in `@theme inline` — those names collide with Tailwind v4's built-in container sizes (`max-w-sm`, `max-w-xl`, etc.) and will break layout utilities.
+
+| Figma Token | Value | Tailwind Numeric Class     |
+|-------------|-------|----------------------------|
+| `3xs`       | 2px   | `p-0.5`, `gap-0.5`, etc.  |
+| `2xs`       | 4px   | `p-1`, `gap-1`, etc.      |
+| `xs`        | 8px   | `p-2`, `gap-2`, etc.      |
+| `sm`        | 12px  | `p-3`, `gap-3`, etc.      |
+| `md`        | 16px  | `p-4`, `gap-4`, etc.      |
+| `lg`        | 24px  | `p-6`, `gap-6`, etc.      |
+| `xl`        | 32px  | `p-8`, `gap-8`, etc.      |
+| `4xl`       | 48px  | `p-12`, `gap-12`, etc.    |
+| `5xl`       | 64px  | `p-16`, `gap-16`, etc.    |
+
+## Design Tokens — Border Radius
+
+Base radius (`--radius`) is `0.5rem` (8px), matching Figma's `rounded-lg`.
+
+| Token        | Computed | Figma Equivalent |
+|--------------|----------|------------------|
+| `rounded-sm` | 4px      | `rounded-sm`     |
+| `rounded-md` | 6px      | —                |
+| `rounded-lg` | 8px      | `rounded-lg`     |
+| `rounded-xl` | 12px     | —                |
+
+## Design Tokens — Shadows
+
+| Token      | Value                                                 |
+|------------|-------------------------------------------------------|
+| `shadow-xs`| `0 1px 2px rgba(0,0,0,0)` (from Figma shadow-xs)     |
+
+## Styling Rules
+
+- Use Tailwind utility classes for all styling
+- IMPORTANT: Never use inline `style` attributes unless truly required for dynamic values
+- IMPORTANT: Never hardcode colors — always reference design tokens via Tailwind classes
+- Responsive breakpoints follow Tailwind defaults (`sm`, `md`, `lg`, `xl`, `2xl`)
+
+## Figma MCP Integration Rules
+
+These rules define how to translate Figma inputs into code for this project and must be followed for every Figma-driven change.
+
+### Required Flow (do not skip)
+
+1. Run `get_design_context` first to fetch the structured representation for the exact node(s)
+2. If the response is too large or truncated, run `get_metadata` to get the high-level node map, then re-fetch only the required node(s) with `get_design_context`
+3. Run `get_screenshot` for a visual reference of the node variant being implemented
+4. Only after you have both `get_design_context` and `get_screenshot`, download any assets needed and start implementation
+5. Translate the output (usually React + Tailwind) into this project's conventions, styles, and framework
+6. Validate against Figma for 1:1 look and behavior before marking complete
+
+### Implementation Rules
+
+- Treat the Figma MCP output (React + Tailwind) as a representation of design and behavior, not as final code style
+- Reuse existing components from `src/components/ui/` instead of duplicating functionality
+- Map Figma colors to the CSS custom properties defined in `src/index.css`
+- Use Tailwind numeric spacing classes that match the Figma scale (see spacing table above)
+- Respect existing routing, state management, and data-fetch patterns
+- Strive for 1:1 visual parity with the Figma design
+
+## Asset Handling
+
+- The Figma MCP server provides an assets endpoint which can serve image and SVG assets
+- IMPORTANT: If the Figma MCP server returns a localhost source for an image or SVG, use that source directly
+- IMPORTANT: DO NOT import/add new icon packages — all assets should be in the Figma payload
+- IMPORTANT: DO NOT use or create placeholders if a localhost source is provided
+- Store downloaded assets in `src/assets/`
+
+## Project-Specific Conventions
+
+- Import order: React → third-party → `@/components` → `@/lib` → types
+- All components must have TypeScript prop types
+- Use `cn()` from `@/lib/utils` for conditional class merging
+- Prefer composition over prop-driven variants when extending ShadCN components
